@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aether
 
-## Getting Started
+Aether is a Next.js App Router student dashboard with a glassmorphism UI, animated interactions, and optional Supabase-backed data.
 
-First, run the development server:
+> Note: This README focuses on the app shell, routing, styling, and data flow. Component and lib implementation details are intentionally omitted.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## What this app does
+
+- Renders a dashboard page with a responsive bento grid layout.
+- Uses server-side data fetching in the App Router page.
+- Shows a Supabase status notification for live vs demo data.
+- Provides a skeleton loading state while fetching.
+
+## Architecture (high level)
+
+```mermaid
+flowchart TD
+	A[App Router] --> B[Root Layout]
+	B --> C[Dashboard Page]
+	C --> D[Bento Grid Layout]
+	C --> E[Supabase Status Banner]
+	C --> F[Loading Skeleton]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Data flow (Supabase + demo fallback)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```mermaid
+sequenceDiagram
+	autonumber
+	actor U as User
+	U->>N: Request / (App Router)
+	N->>S: fetchCourses()
+	alt Env configured
+		S->>SB: Query Supabase
+		SB-->>S: Courses data
+	else Missing env
+		S-->>N: Local demo dataset
+	end
+	N-->>U: Render dashboard UI
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tech stack
 
-## Learn More
+- Next.js (App Router)
+- React 19
+- Tailwind CSS v4 (via PostCSS)
+- Framer Motion
+- Lucide React
+- Supabase JS
 
-To learn more about Next.js, take a look at the following resources:
+## Project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+	app/
+		layout.tsx      # App shell, fonts, layout chrome
+		page.tsx        # Dashboard page (server component)
+		loading.tsx     # Skeleton UI
+		globals.css     # Global styling + utilities
+public/
+	noise.png         # UI texture overlay
+supabase_setup.sql  # DB schema + seed data
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment variables
 
-## Deploy on Vercel
+Create .env.local and add:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If these are missing, the app falls back to local demo data.
+
+## Supabase setup
+
+1. Open the Supabase SQL editor.
+2. Run the script in supabase_setup.sql to create and seed the courses table.
+3. Enable RLS and the public read policy as provided in the script.
+
+## Scripts
+
+```
+npm run dev
+npm run build
+npm run start
+npm run lint
+```
+
+## Notes
+
+- Global styles define glassmorphism helpers, skeleton animation, and scrollbars.
+- The root layout sets font variables and the two-column app chrome (sidebar + main).
+
+## License
+
+MIT
