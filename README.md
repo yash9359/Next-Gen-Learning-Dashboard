@@ -1,97 +1,141 @@
 # Aether
 
-Aether is a Next.js App Router student dashboard with a glassmorphism UI, animated interactions, and optional Supabase-backed data.
+> A Next.js App Router learning dashboard with glassmorphism UI, animated bento tiles, and Supabase-backed data.
 
-> Note: This README focuses on the app shell, routing, styling, and data flow. Component and lib implementation details are intentionally omitted.
+---
 
-## What this app does
+## Highlights
 
-- Renders a dashboard page with a responsive bento grid layout.
-- Uses server-side data fetching in the App Router page.
-- Shows a Supabase status notification for live vs demo data.
-- Provides a skeleton loading state while fetching.
+- Responsive bento-grid dashboard layout with motion-driven tile animations
+- Live Supabase data when environment variables are provided
+- Automatic fallback to local demo data when Supabase isn't configured
+- Polished skeleton loading state for improved perceived performance
+- Sidebar that adapts to mobile, tablet, and desktop widths
+- Activity heatmap generated client-side for the last 18 weeks
+- Course cards with dynamic visual accents based on progress level
 
-## Architecture (high level)
+---
 
-```mermaid
-flowchart TD
-	A[App Router] --> B[Root Layout]
-	B --> C[Dashboard Page]
-	C --> D[Bento Grid Layout]
-	C --> E[Supabase Status Banner]
-	C --> F[Loading Skeleton]
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js (App Router) |
+| UI Library | React 19 |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 (via PostCSS) |
+| Animations | Framer Motion |
+| Icons | Lucide React |
+| Database | Supabase JS |
+
+---
+
+## Getting Started
+
+**1. Install dependencies**
+
+```bash
+npm install
 ```
 
-## Data flow (Supabase + demo fallback)
+**2. Run the dev server**
 
-```mermaid
-sequenceDiagram
-	autonumber
-	actor U as User
-	U->>N: Request / (App Router)
-	N->>S: fetchCourses()
-	alt Env configured
-		S->>SB: Query Supabase
-		SB-->>S: Courses data
-	else Missing env
-		S-->>N: Local demo dataset
-	end
-	N-->>U: Render dashboard UI
+```bash
+npm run dev
 ```
 
-## Tech stack
+**3. Open the app**
 
-- Next.js (App Router)
-- React 19
-- Tailwind CSS v4 (via PostCSS)
-- Framer Motion
-- Lucide React
-- Supabase JS
+```
+http://localhost:3000
+```
 
-## Project structure
+---
+
+## Environment Variables
+
+Create `.env.local` in the project root:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+> If these are missing, the dashboard automatically uses a local demo dataset — no setup required.
+
+---
+
+## Supabase Setup
+
+1. Open the Supabase SQL editor
+2. Run the SQL in `supabase_setup.sql` to create and seed the `courses` table
+3. Ensure the public read policy is enabled (the script sets this up automatically)
+
+---
+
+## Project Structure
 
 ```
 src/
-	app/
-		layout.tsx      # App shell, fonts, layout chrome
-		page.tsx        # Dashboard page (server component)
-		loading.tsx     # Skeleton UI
-		globals.css     # Global styling + utilities
+├── app/
+│   ├── layout.tsx          # Root layout, fonts, sidebar + main shell
+│   ├── page.tsx            # Dashboard page (server component)
+│   ├── loading.tsx         # Skeleton UI
+│   └── globals.css         # Theme tokens + global utilities
+├── components/
+│   ├── sidebar.tsx         # Responsive navigation
+│   ├── hero-tile.tsx       # Welcome + XP + streak summary
+│   ├── course-tile.tsx     # Progress cards
+│   ├── activity-tile.tsx   # Heatmap-style activity grid
+│   ├── bento-grid.tsx      # Animated layout wrapper
+│   └── supabase-alert.tsx  # Data source status banner
+└── lib/
+    ├── supabase.ts         # Supabase client + Course type
+    └── courses.ts          # Data fetch with demo fallback
 public/
-	noise.png         # UI texture overlay
-supabase_setup.sql  # DB schema + seed data
+└── noise.png               # UI texture overlay
+supabase_setup.sql          # DB schema + seed data
 ```
 
-## Environment variables
+---
 
-Create .env.local and add:
+## App Flow
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    U->>N: Request /
+    N->>S: fetchCourses()
+    alt Env configured
+        S->>SB: Query Supabase
+        SB-->>S: Course rows
+    else Missing env or query error
+        S-->>N: Local demo dataset
+    end
+    N-->>U: Render dashboard UI
 ```
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-```
 
-If these are missing, the app falls back to local demo data.
-
-## Supabase setup
-
-1. Open the Supabase SQL editor.
-2. Run the script in supabase_setup.sql to create and seed the courses table.
-3. Enable RLS and the public read policy as provided in the script.
+---
 
 ## Scripts
 
-```
-npm run dev
-npm run build
-npm run start
-npm run lint
+```bash
+npm run dev      # Start development server
+npm run build    # Create production build
+npm run start    # Serve production build
+npm run lint     # Lint the codebase
 ```
 
-## Notes
+---
 
-- Global styles define glassmorphism helpers, skeleton animation, and scrollbars.
-- The root layout sets font variables and the two-column app chrome (sidebar + main).
+## UI Notes
+
+- Global styles include glassmorphism helpers, glow effects, and skeleton animations
+- The activity heatmap is generated client-side for the last 18 weeks
+- Course cards dynamically change visual accents based on progress level
+
+---
 
 ## License
 
